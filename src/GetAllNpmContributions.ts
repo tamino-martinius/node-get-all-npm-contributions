@@ -71,10 +71,24 @@ export class GetAllNpmContributions {
 
     this.#api = new NpmApi({
       pageSize: this.#config.import?.pageSize,
-      onApiCall: ({ url }) => {
-        Logger.debug(`API call: ${url}`);
+      onApiCall: () => {
+        this.#printProgressDot();
       },
     });
+  }
+
+  #printProgressDot() {
+    if (["log", "debug"].includes(Logger.logLevel)) {
+      return;
+    }
+    process.stdout.write(".");
+  }
+
+  #clearProgressDot() {
+    if (["log", "debug"].includes(Logger.logLevel)) {
+      return;
+    }
+    process.stdout.write("\n");
   }
 
   get data(): ImportData {
@@ -117,19 +131,28 @@ export class GetAllNpmContributions {
     this.#initializeProgress();
     const progress = this.#getProgress();
 
+    console.log("Syncing npm contributions");
+    console.log(
+      "Initial progress stats:",
+      progress.progressStats.initial,
+    );
+
     try {
-      Logger.log(`Syncing packages for user: ${this.#config.username}`);
-
-      // Step 1: Search all packages by author
-      const searchResults = await this.#api.searchPackagesByAuthor(
-        this.#config.username,
-      );
-      Logger.log(`Found ${searchResults.length} packages`);
-
-      // Step 2: Fetch details for each package
       const concurrency = this.#config.import?.concurrency ?? 10;
       const maxRetries = this.#config.import?.maxRetries ?? 2;
 
+      // Step 1: Search all packages by author
+      console.log(`Searching packages for user: ${this.#config.username}`);
+      const searchResults = await this.#api.searchPackagesByAuthor(
+        this.#config.username,
+      );
+      this.#clearProgressDot();
+      Logger.log(`Found ${searchResults.length} packages`);
+
+      // Step 2: Fetch details for each package
+      console.log(
+        `Syncing package details (${searchResults.length} packages)`,
+      );
       await runParallel({
         items: searchResults,
         callback: async (result: SearchResultObject) => {
@@ -138,11 +161,12 @@ export class GetAllNpmContributions {
         maxConcurrency: concurrency,
         maxRetries,
       });
+      this.#clearProgressDot();
 
       // Step 3: Fetch download stats using range API
       const downloadTasks = this.#buildDownloadRangeTasks();
-      Logger.log(
-        `Fetching downloads for ${downloadTasks.length} package-range combinations`,
+      console.log(
+        `Syncing download statistics (${downloadTasks.length} date ranges)`,
       );
 
       await runParallel({
@@ -157,13 +181,16 @@ export class GetAllNpmContributions {
         maxConcurrency: Math.min(concurrency, 3),
         maxRetries,
       });
+      this.#clearProgressDot();
 
       progress.status = "completed";
       this.#data.importState.lastFullImportTimestamp = Date.now();
 
-      const elapsed = ((Date.now() - startTime) / 1000 / 60).toFixed(1);
-      Logger.log(`Syncing completed in ${elapsed} minutes`);
-      Logger.log(JSON.stringify(progress.progressStats.total, null, 2));
+      const duration = Date.now() - startTime;
+      console.log(
+        `Syncing completed in ${(duration / 1000 / 60).toFixed(2)} minutes`,
+        progress.progressStats.new,
+      );
     } catch (error) {
       progress.status = "error";
       throw error;
@@ -175,10 +202,7 @@ export class GetAllNpmContributions {
     const progress = this.#getProgress();
     const isNew = !(packageName in this.#data.packages);
 
-    Logger.send({
-      debug: [`Syncing package: ${packageName}`],
-      warn: ["."],
-    });
+    Logger.debug(`Syncing package: ${packageName}`);
 
     let details: PackageDetailsResponse;
     try {
@@ -317,10 +341,7 @@ export class GetAllNpmContributions {
 
     if (!pkg) return;
 
-    Logger.send({
-      debug: [`Fetching downloads: ${packageName} ${startDate}..${endDate}`],
-      warn: ["."],
-    });
+    Logger.debug(`Fetching downloads: ${packageName} ${startDate}..${endDate}`);
 
     try {
       const result = await this.#api.getDownloadRange(
