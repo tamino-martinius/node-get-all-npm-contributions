@@ -1,0 +1,9 @@
+{
+  "$schema": "./config.schema.json",
+  "username": "tamino-martinius",
+  "import": {
+    "concurrency": 10,
+    "maxRetries": 2,
+    "pageSize": 250
+  }
+}

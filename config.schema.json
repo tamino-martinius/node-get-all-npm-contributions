@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "npm Contributions Tracker Configuration",
+  "description": "Configuration for tracking npm package contributions and download statistics",
+  "type": "object",
+  "required": ["username"],
+  "properties": {
+    "username": {
+      "type": "string",
+      "description": "npm username to track packages for"
+    },
+    "import": {
+      "type": "object",
+      "description": "Import configuration settings",
+      "properties": {
+        "concurrency": {
+          "type": "integer",
+          "description": "Number of jobs to process per batch",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10
+        },
+        "maxRetries": {
+          "type": "integer",
+          "description": "Maximum retry attempts per failed job",
+          "minimum": 0,
+          "maximum": 10,
+          "default": 2
+        },
+        "pageSize": {
+          "type": "integer",
+          "description": "Number of items per page for search pagination",
+          "minimum": 1,
+          "maximum": 250,
+          "default": 250
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "name": "get-all-npm-contributions",
+  "version": "0.1.0",
+  "description": "Get all npm contributions and download statistics",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist tsconfig.build.tsbuildinfo && tsc -p tsconfig.build.json",
+    "prepack": "npm run build",
+    "import": "npx tsx scripts/import.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check --fix ."
+  },
+  "keywords": [
+    "npm",
+    "contributions",
+    "downloads",
+    "packages",
+    "statistics",
+    "sync"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tamino-martinius/node-get-all-npm-contributions.git"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.9",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
