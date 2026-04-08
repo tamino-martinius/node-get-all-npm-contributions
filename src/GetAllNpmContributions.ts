@@ -307,9 +307,15 @@ export class GetAllNpmContributions {
     const current = new Date(`${startDate}T00:00:00Z`);
     const end = new Date(`${endDate}T00:00:00Z`);
 
+    // Re-check the last 7 days as npm stats are gathered with some delay
+    const reCheckThreshold = new Date(
+      end.getTime() - 7 * 24 * 60 * 60 * 1000,
+    );
+
     while (current <= end) {
       const dateStr = formatDate(current);
-      const hasDta = dateStr in pkg.downloads;
+      const hasDta =
+        dateStr in pkg.downloads && current < reCheckThreshold;
 
       if (!hasDta && rangeStart === null) {
         rangeStart = dateStr;
