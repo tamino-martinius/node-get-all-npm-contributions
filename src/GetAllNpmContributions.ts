@@ -132,10 +132,7 @@ export class GetAllNpmContributions {
     const progress = this.#getProgress();
 
     console.log("Syncing npm contributions");
-    console.log(
-      "Initial progress stats:",
-      progress.progressStats.initial,
-    );
+    console.log("Initial progress stats:", progress.progressStats.initial);
 
     try {
       const concurrency = this.#config.import?.concurrency ?? 10;
@@ -150,9 +147,7 @@ export class GetAllNpmContributions {
       Logger.log(`Found ${searchResults.length} packages`);
 
       // Step 2: Fetch details for each package
-      console.log(
-        `Syncing package details (${searchResults.length} packages)`,
-      );
+      console.log(`Syncing package details (${searchResults.length} packages)`);
       await runParallel({
         items: searchResults,
         callback: async (result: SearchResultObject) => {
