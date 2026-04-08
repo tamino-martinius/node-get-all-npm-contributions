@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Re-check download stats from the last 7 days during delta sync to account for delayed npm statistics
+
 ## 0.1.0
 
 - Initial release

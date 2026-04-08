@@ -1,6 +1,6 @@
 {
   "name": "get-all-npm-contributions",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Get all npm contributions and download statistics",
   "type": "module",
   "main": "dist/index.js",
